@@ -29,6 +29,17 @@ export class HomeComponent implements OnInit {
     'Cloud',
   ];
 
+  skillsList = {
+    'C++': false,
+    'Java': false,
+    'Python': false,
+    'JavaScript': false,
+    'PHP': false,
+    'SQL': false,
+    'NoSQL': false,
+    'Cloud': false
+  }
+
   fileUpload: any = null;
 
   constructor(
@@ -64,10 +75,11 @@ export class HomeComponent implements OnInit {
         ]),
         gender: new FormControl(data.gender, [Validators.required]),
         state: new FormControl('', [Validators.required]),
-        skills: this.fb.array(skillArray),
+        skills: this.fb.array([]),
         photoPath: new FormControl(data.photoPath, [Validators.required]),
       });
       this.form.controls['state'].setValue(data.state, { onlySelf: true });
+      this.addCheck(skillArray);
     }
   }
 
@@ -77,10 +89,17 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  onCheckboxChange(e: any) {
-    console.log(this.form.value.skills);
+  addCheck(data: any) {
     const state: FormArray = this.form.get('skills') as FormArray;
+    for(let i = 0; i < data.length; i++) {
+      state.push(new FormControl(data[i]));
+      // @ts-ignore
+      this.skillsList[data[i]] = true;
+    }
+  }
 
+  onCheckboxChange(e: any) {
+    const state: FormArray = this.form.get('skills') as FormArray;
     if (e.target.checked) {
       state.push(new FormControl(e.target.value));
     } else {
@@ -93,7 +112,6 @@ export class HomeComponent implements OnInit {
         i++;
       });
     }
-    console.log(this.form.value.skills);
   }
 
   get f() {
@@ -104,6 +122,7 @@ export class HomeComponent implements OnInit {
     if (typeof this.form.value.state == 'string') return false;
     return true;
   }
+
   get skills() {
     if (this.form.value.skills.length > 0) {
       return false;
@@ -151,6 +170,7 @@ export class HomeComponent implements OnInit {
 
   setFile(files: any) {
     if (files.target.files) {
+      this.form.controls['photoPath'].setValue(files.target.files[0].name);
       this.fileUpload = files.target.files[0];
     }
   }
@@ -169,5 +189,10 @@ export class HomeComponent implements OnInit {
         alert(data['Message']);
       }
     });
+  }
+
+  getCheck(data: any):boolean {
+    // @ts-ignore
+    return this.skillsList[data];
   }
 }
